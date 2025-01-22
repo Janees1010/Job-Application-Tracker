@@ -4,6 +4,8 @@ const  {
     findApplicationById,
     deleteApplication,
     updateApplication,
+    findApplicationByCompanyOrRole,
+    findApplicationsByStatus
 } = require("../services/applicationService")
 
 const addApplication = async (req, res) => {
@@ -20,11 +22,8 @@ const addApplication = async (req, res) => {
 
 const fetchApplication = async(req,res)=>{
     try {
-        console.log(req.user);
-           
-          const applications =  await findApplication(req.user)
-          console.log(applications);
-          
+          const {page} =  req.query;
+          const applications =  await findApplication(req.user,page)
           return res.status(200).json(applications)
     } catch (error) {
         return res.status(500).json(error.message)
@@ -65,6 +64,27 @@ const handleApplicationEdit = async (req,res) =>{
     }
 }
 
+const handleSearch = async(req,res)=>{
+    try {
+        const {query} = req.query;
+        if(!query) return res.status(400).json("query required to search")
+        const applications = await findApplicationByCompanyOrRole(query,req.user)
+        return res.status(200).json(applications)
+     } catch (error) {
+        return res.status(500).json(error.message)
+     }
+    }
+
+    const filterByStatus = async(req,res)=>{
+        try {
+             const {status,page} =  req.query;
+             const applications =  await findApplicationsByStatus(status,req.user,page)
+             return res.status(200).json(applications)
+        } catch (error) {
+             return res.status(500).json(error.message)
+        }
+    }
+
 
 
 
@@ -73,5 +93,7 @@ module.exports = {
   fetchApplication,
   findOneApplication,
   handleApplicationDelete,
-  handleApplicationEdit
+  handleApplicationEdit,
+  handleSearch,
+  filterByStatus
 };  

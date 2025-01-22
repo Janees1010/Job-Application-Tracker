@@ -9,10 +9,13 @@ const insertApplication = async (application) => {
   }
 };
 
-const findApplication = async (userId) => {
+const findApplication = async (userId, page) => {
   try {
-    const applications = await Application.find({ userId });
-    return applications;
+    const limit = 2;
+    const skip = (page - 1) * limit;
+    const applications = await Application.find({ userId }).skip(skip).limit(2);
+    const totalCount = await Application.countDocuments();
+    return { applications, totalCount };
   } catch (error) {
     throw new Error(`error fetching application : ${error.message}`);
   }
@@ -38,12 +41,41 @@ const deleteApplication = async (id) => {
 
 const updateApplication = async (id, data) => {
   try {
-    const response = await Application.findByIdAndUpdate(id, data, { new: true });
+    const response = await Application.findByIdAndUpdate(id, data, {
+      new: true,
+    });
     return response;
   } catch (error) {
     throw new Error(`error updating application : ${error.message}`);
   }
 };
+
+const findApplicationByCompanyOrRole = async (query, userId) => {
+  try {
+    const applications = await Application.find({
+      userId,
+      $or: [
+        { company: new RegExp(query, "i") },
+        { position: new RegExp(query, "i") },
+      ],
+    });
+    console.log(applications, "search result");
+    return applications;
+  } catch (error) {
+    throw new Error(`error finding application : ${error.message}`);
+  }
+};
+
+const findApplicationsByStatus = async (status, userId, page) => {
+  try {
+    const limit = 2;
+    const skip = (page - 1) * limit;
+    const applications = await Application.find({ userId, status })
+    return applications;
+  } catch (error) {
+    throw new Error(`error filtering application by status : ${error.message}`);
+  }
+}; 
 
 module.exports = {
   insertApplication,
@@ -51,4 +83,6 @@ module.exports = {
   findApplicationById,
   deleteApplication,
   updateApplication,
+  findApplicationByCompanyOrRole,
+  findApplicationsByStatus,
 };

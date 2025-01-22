@@ -2,6 +2,8 @@ import {useEffect,useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { addUser } from "../redux/slices/userSlice";
+import { replaceApplications } from "../redux/slices/demoSlice";
+import axiosInstace from "../axios/axios";
 
 const Navbar = () => {
     const user = useSelector((state)=>state.user)
@@ -13,6 +15,42 @@ const Navbar = () => {
   const logout = () => {
     localStorage.clear();
     navigate("/login");
+  };
+
+  const fetchApplications =  async()=> {
+    try {
+      const { data } = await axiosInstace.get("/api/applications", {
+        params:{page:1},
+        headers: { authorization: `Bearer ${user?.token}` },
+      });
+      dispatch(replaceApplications(data.applications))
+    } catch (error) {
+      console.log(error.message);
+    }
+  }; 
+
+  let timeoutId;  
+  const handleSearch = async (e) => {
+    try {
+        if(timeoutId){
+            clearTimeout(timeoutId)
+        }
+      const query = e.target.value;
+       timeoutId = setTimeout(async () => {
+        if (query.length) {
+          const { data } = await axiosInstace("/api/applications/search", {
+            params: { query },
+            headers: { authorization: `Bearer ${user?.token}` },
+          });
+          console.log(data);
+          dispatch(replaceApplications(data));
+        } else {
+           fetchApplications();
+        }
+      }, 700);
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 
     useEffect(() => {
@@ -29,7 +67,15 @@ const Navbar = () => {
 
       <nav className="bg-blue-950 flex justify-between items-center p-3 px-5 h-[60px]  w-full">
         <div>
-          <h1 className="text-xl text-white">Job Portal</h1>
+          <Link to="/" className="text-xl text-white">Application Tracker</Link>
+        </div>
+        <div>
+          <input
+            onChange={handleSearch}
+            className="py-3 px-10 w-[500px] rounded-xl bg-white"
+            placeholder="search by company or position "
+            type="text"
+          />
         </div>
 
         <div className="relative flex gap-5">

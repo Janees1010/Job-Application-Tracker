@@ -17,11 +17,13 @@ const demoSlice = createSlice({
       state.push(action.payload);
     },
     updateApplication: (state, action) => {
+        console.log(action);
+        
       return state.map((task) =>
         task._id === action.payload._id ? action.payload : task
       );
     },
-    replaceTask: (state, action) => {
+    replaceApplications: (state, action) => {
       return action.payload;
     },
     deleteApplication: (state, action) => {
@@ -30,5 +32,5 @@ const demoSlice = createSlice({
   },
 });
 
-export const { addOneApplication, addApplication, deleteApplication, updateApplication, replaceTask } = demoSlice.actions;
+export const { addOneApplication, addApplication, deleteApplication, updateApplication, replaceApplications } = demoSlice.actions;
 export default demoSlice.reducer;
