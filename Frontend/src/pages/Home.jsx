@@ -30,7 +30,8 @@ const Home = () => {
         params: { id },
         headers: { authorization: `Bearer ${user?.token}` },
       });
-      dispatch(deleteApplication({ id }));
+    //   dispatch(deleteApplication({ id }));
+    fetchApplications()
       console.log(response);
     } catch (error) {
       console.log(error.message);
@@ -139,7 +140,7 @@ const Home = () => {
             })
           : ""}
       </div>
-      <div className="join flex justify-center mt-5">
+      <div className="join absolute bottom-[40px] left-[50%] flex justify-center mt-5">
       { Array.from({ length: totalPages }, (_, index) => (
           <button
             key={index + 1}
